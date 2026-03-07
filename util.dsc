@@ -44,10 +44,18 @@ util_sec_to_hms:
   debug: false
   definitions: seconds
   script:
-  - define h <[seconds].div[3600].round_down>
+  - define d <[seconds].div[86400].round_down>
+  - define h <[seconds].mod[86400].div[3600].round_down>
   - define m <[seconds].mod[3600].div[60].round_down>
   - define s <[seconds].mod[60]>
-  - determine "<[h]>h <[m]>m <[s]>s"
+  - if <[d]> > 0:
+    - determine "<[d]>d <[h]>h <[m]>m <[s]>s"
+  - else if <[h]> > 0:
+    - determine "<[h]>h <[m]>m <[s]>s"
+  - else if <[m]> > 0:
+    - determine "<[m]>m <[s]>s"
+  - else:
+    - determine <[s]>s
 
 util_tick_to_ms:
   type: procedure

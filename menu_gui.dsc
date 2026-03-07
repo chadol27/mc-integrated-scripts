@@ -197,6 +197,23 @@ menu_gui__click_event:
         - narrate "<[index]>. <&[base]><bold><[loop_player].name>: <reset><proc[util_sec_to_hms].context[<[loop_player].flag[time_played]>]>"
         - define index:+:1
       - run util_sound_default
+    # 낚시 횟수 랭킹
+    - if <context.item> matches menu_gui__fishing_ranking_item:
+      - narrate " "
+      - narrate "<&[emphasis]>서버 낚시 횟수 랭킹"
+      - define index 1
+      - define list <server.players.sort_by_number[statistic[fish_caught]].reverse.first[7]>
+      - foreach <[list]> as:loop_player:
+        - define fish_count <[loop_player].statistic[fish_caught].if_null[0]>
+        - define rare_count <[loop_player].flag[fishing_rare_count].if_null[0]>
+        - define legendary_count <[loop_player].flag[fishing_legendary_count].if_null[0]>
+        - narrate "<[index]>. <&[base]><bold><[loop_player].name><reset><gray>: 낚시 <reset><[fish_count]>회<gray>, Rare <gold><[rare_count]>회<gray>, Legendary <&[emphasis]><[legendary_count]>회"
+        - define index:+:1
+      - run util_sound_default
+    # 낚시 아이템 목록
+    - if <context.item> matches menu_gui__fishing_loot_item:
+      - run fishing__show_loot_list def:<player>
+      - run util_sound_default
 
 menu_gui__night_vision_event:
   type: world
@@ -229,7 +246,7 @@ menu_gui__inventory:
   - [menu_gui__rule_item] [menu_gui__suicide_item] [menu_gui__ender_chest_item]
     [menu_gui__night_vision_item] [menu_gui__pos_share_item] [menu_gui__name_change_item]
     [menu_gui__item_flex_item] [menu_gui__difficulty_item] [menu_gui__ranking_item]
-  - [menu_gui__sidebar_item] [] [] [] [] [] [] [] []
+  - [menu_gui__sidebar_item] [menu_gui__fishing_loot_item] [menu_gui__fishing_ranking_item] [] [] [] [] [] []
   - [] [] [] [] [] [] [] [] []
 
 menu_gui__rule_item:
@@ -281,3 +298,13 @@ menu_gui__ranking_item:
   type: item
   material: player_head
   display name: <white>플레이 시간 랭킹 보기
+
+menu_gui__fishing_loot_item:
+  type: item
+  material: fishing_rod
+  display name: <white>낚시 아이템 목록 보기
+
+menu_gui__fishing_ranking_item:
+  type: item
+  material: cod
+  display name: <white>낚시 횟수 랭킹 보기
