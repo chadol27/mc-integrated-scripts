@@ -189,26 +189,13 @@ menu_gui__click_event:
       - run util_sound_yes
     # 플레이 시간 랭킹
     - if <context.item> matches menu_gui__ranking_item:
-      - narrate " "
-      - narrate "<&[emphasis]>서버 플레이 시간 랭킹"
-      - define index 1
-      - define list <server.players.sort_by_number[flag[time_played]].reverse.first[7]>
-      - foreach <[list]> as:loop_player:
-        - narrate "<[index]>. <&[base]><bold><[loop_player].name>: <reset><proc[util_sec_to_hms].context[<[loop_player].flag[time_played]>]>"
-        - define index:+:1
+      - define message <proc[menu_gui__playtime_ranking_message]>
+      - narrate <[message]>
       - run util_sound_default
     # 낚시 횟수 랭킹
     - if <context.item> matches menu_gui__fishing_ranking_item:
-      - narrate " "
-      - narrate "<&[emphasis]>서버 낚시 횟수 랭킹"
-      - define index 1
-      - define list <server.players.sort_by_number[statistic[fish_caught]].reverse.first[7]>
-      - foreach <[list]> as:loop_player:
-        - define fish_count <[loop_player].statistic[fish_caught].if_null[0]>
-        - define rare_count <[loop_player].flag[fishing_rare_count].if_null[0]>
-        - define legendary_count <[loop_player].flag[fishing_legendary_count].if_null[0]>
-        - narrate "<[index]>. <&[base]><bold><[loop_player].name><reset><gray>: 낚시 <reset><[fish_count]>회<gray>, Rare <gold><[rare_count]>회<gray>, Legendary <&[emphasis]><[legendary_count]>회"
-        - define index:+:1
+      - define message <proc[menu_gui__fishing_ranking_message]>
+      - narrate <[message]>
       - run util_sound_default
     # 낚시 아이템 목록
     - if <context.item> matches menu_gui__fishing_loot_item:
@@ -235,6 +222,68 @@ menu_gui__name_change_event:
     - flag <player> name_change:!
     - narrate "<[old_name]>의 이름을 <&[emphasis]>'<[new_name]>'<reset>(으)로 변경했습니다"
     - run util_sound_yes
+
+menu_gui__ranking_command:
+  type: command
+  debug: false
+  name: ranking
+  description: show ranking
+  usage: /ranking playtime|fishing
+  aliases:
+  - rank
+  permission: chadol.menu_gui.command
+  tab completions:
+    1: playtime|fishing
+  script:
+  - define ranking_type <context.args.first.if_null[playtime]>
+  - if <[ranking_type]> == playtime:
+    - define message <proc[menu_gui__playtime_ranking_message]>
+  - else if <[ranking_type]> == fishing:
+    - define message <proc[menu_gui__fishing_ranking_message]>
+  - else:
+    - if <context.server>:
+      - announce to_console "<&[error]>Usage: /ranking playtime|fishing"
+    - else:
+      - narrate "<&[error]>Usage: /ranking playtime|fishing"
+    - stop
+  - if <context.server>:
+    - announce to_console <[message]>
+  - else:
+    - narrate <[message]>
+    - run util_sound_default
+
+menu_gui__playtime_ranking_message:
+  type: procedure
+  debug: false
+  script:
+  - define message " <n><&[emphasis]>서버 플레이 시간 랭킹"
+  - define index 1
+  - define list <server.players.sort_by_number[flag[time_played]].reverse.first[7]>
+  - foreach <[list]> as:loop_player:
+    - define message "<[message]><n><reset><[index]>. <&[base]><bold><[loop_player].name>: <reset><proc[util_sec_to_hms].context[<[loop_player].flag[time_played]>]>"
+    - define index:+:1
+  - determine <[message]>
+
+menu_gui__fishing_ranking_message:
+  type: procedure
+  debug: false
+  script:
+  - define message " <n><&[emphasis]>서버 낚시 횟수 랭킹"
+  - define index 1
+  - define rank_entries <list[]>
+  - foreach <server.players> as:loop_player:
+    - define fish_count <[loop_player].flag[fishing_count].if_null[0]>
+    - define rank_entries:->:<[fish_count]>/<[loop_player].uuid>
+  - define list <[rank_entries].sort_by_number[before[/]].reverse.first[7]>
+  - foreach <[list]> as:rank_entry:
+    - define loop_player <player[<[rank_entry].after[/]>]>
+    - define fish_count <[rank_entry].before[/]>
+    - define rare_count <[loop_player].flag[fishing_rare_count].if_null[0]>
+    - define legendary_count <[loop_player].flag[fishing_legendary_count].if_null[0]>
+    - define mythic_count <[loop_player].flag[fishing_mythic_count].if_null[0]>
+    - define message "<[message]><n><reset><[index]>. <&[base]><bold><[loop_player].name><reset><gray>: 낚시 <reset><[fish_count]>회<gray>, Rare <gold><[rare_count]>회<gray>, Legendary <&[emphasis]><[legendary_count]>회<gray>, Mythic <&[error]><[mythic_count]>회"
+    - define index:+:1
+  - determine <[message]>
 
 menu_gui__inventory:
   type: inventory
