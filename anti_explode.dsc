@@ -5,7 +5,7 @@ anti_explode__event:
     on creeper explodes priority:-1:
     - determine <list[]>
     on entity explodes in:anti_explode_cuboid:
-    - if <context.entity> matches wind_charge|breeze_wind_charge:
+    - if <context.entity> matches wind_charge|breeze_wind_charge|wither_skull:
       - determine <list[]>
     - define message "<&[error]>폭발 방지 구역에서 엔티티 폭발이 발생해 취소되었습니다<n><reset>- <context.entity.type>, <proc[util_location_format].context[<context.location>]>"
     - narrate <[message]> targets:<context.location.find_players_within[50]>
@@ -15,10 +15,14 @@ anti_explode__event:
     - define message "<&[error]>폭발 방지 구역에서 블록 폭발이 발생해 취소되었습니다<n><reset>- <proc[util_location_format].context[<context.block>]>"
     - narrate <[message]> targets:<context.block.find_players_within[50]>
     - announce to_console <[message]>
-    - determine cancelled
+    - determine <list[]>
     on entity damaged by BLOCK_EXPLOSION in:anti_explode_cuboid:
+    - if <context.entity.is_player>:
+      - stop
     - determine cancelled
     on entity damaged by ENTITY_EXPLOSION in:anti_explode_cuboid:
+    - if <context.entity.is_player>:
+      - stop
     - determine cancelled
 
 anti_explode__command:

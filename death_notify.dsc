@@ -22,10 +22,13 @@ death_notify__event:
     on entity death:
     - if <context.entity> matches player:
       - stop
-    - if !<context.entity.custom_name.exists>:
+    - if <context.entity.type> != villager && !<context.entity.custom_name.exists>:
       - stop
     - define translated <&translate[key=entity.minecraft.<context.entity.type>]>
-    - define message "이름 있는 엔티티 <&[emphasis]><context.entity.custom_name><reset>(<[translated]>/<context.entity.type>) <&[warning]>사망:"
+    - if <context.entity.custom_name.exists>:
+      - define message "이름 있는 엔티티 <&[emphasis]><context.entity.custom_name><reset>(<[translated]>/<context.entity.type>) <&[warning]>사망:"
+    - else:
+      - define message "<&[emphasis]><[translated]><reset>(<context.entity.type>) <&[warning]>사망:"
     - define message <[message]><n><&[emphasis]><proc[util_location_format].context[<context.entity.location>]>
     - define message "<[message]> <&[warning]><context.cause>"
     - if <context.damager.exists>:

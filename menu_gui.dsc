@@ -139,7 +139,7 @@ menu_gui__click_event:
             - define level <[effect_data].get[amplifier].if_null[0].add[1]>
             - define duration_text <empty>
             - if <[effect_data].contains[duration]>:
-              - define duration_text " (<[effect_data].get[duration]>)"
+              - define duration_text " (<duration[<[effect_data].get[duration]>].formatted>)"
             - define message "<[message]><n>- <&[base]><[translated]> <reset><[level]><[duration_text]>"
       # 셜커 상자 내용물 요약
       - if <[item].has_inventory> && <[item].material.name.to_uppercase.ends_with[SHULKER_BOX]>:
@@ -200,6 +200,11 @@ menu_gui__click_event:
     # 낚시 아이템 목록
     - if <context.item> matches menu_gui__fishing_loot_item:
       - run fishing__show_loot_list def:<player>
+      - run util_sound_default
+    # 확률 2배 포션 교환
+    - if <context.item> matches menu_gui__fishing_double_potion_item:
+      - flag <player> fishing_double_potion_confirm_pending expire:30s
+      - narrate "<&[warning]>확률 2배 포션 교환 대기 중입니다.<n><white>30초 안에 /fishing_potion_confirm<gray>(또는 /fpc)<white>를 입력하면 모든 Legendary 아이템을 1개씩 제출하고 포션을 받습니다.<n><&[error]>인벤토리 안에 중요한 아이템이 없는지 다시 확인하세요."
       - run util_sound_default
 
 menu_gui__night_vision_event:
@@ -295,7 +300,7 @@ menu_gui__inventory:
   - [menu_gui__rule_item] [menu_gui__suicide_item] [menu_gui__ender_chest_item]
     [menu_gui__night_vision_item] [menu_gui__pos_share_item] [menu_gui__name_change_item]
     [menu_gui__item_flex_item] [menu_gui__difficulty_item] [menu_gui__ranking_item]
-  - [menu_gui__sidebar_item] [menu_gui__fishing_loot_item] [menu_gui__fishing_ranking_item] [] [] [] [] [] []
+  - [menu_gui__sidebar_item] [menu_gui__fishing_loot_item] [menu_gui__fishing_ranking_item] [menu_gui__fishing_double_potion_item] [] [] [] [] []
   - [] [] [] [] [] [] [] [] []
 
 menu_gui__rule_item:
@@ -357,3 +362,10 @@ menu_gui__fishing_ranking_item:
   type: item
   material: cod
   display name: <white>낚시 횟수 랭킹 보기
+
+menu_gui__fishing_double_potion_item:
+  type: item
+  material: potion
+  display name: <white>Legendary 아이템 모아서 확률 2배 포션 얻기
+  lore:
+  - <gray>모든 Legendary 아이템을 1개씩 제출합니다
