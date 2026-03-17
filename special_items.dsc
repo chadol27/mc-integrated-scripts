@@ -1,3 +1,34 @@
+special_items__mythic_trim_data:
+  type: data
+  allowed_patterns:
+  - coast
+  - dune
+  - eye
+  - host
+  - raiser
+  - rib
+  - sentry
+  - shaper
+  - silence
+  - snout
+  - spire
+  - tide
+  - vex
+  - ward
+  - wayfinder
+  - wild
+  allowed_materials:
+  - amethyst
+  - copper
+  - diamond
+  - emerald
+  - gold
+  - iron
+  - lapis
+  - netherite
+  - quartz
+  - redstone
+
 special_items__mythic_netherite_pickaxe:
   type: item
   material: netherite_pickaxe
@@ -31,6 +62,7 @@ special_items__mythic_netherite_helmet:
   display name: <red>[Mythic] 보호 6 네더라이트 투구
   lore:
   - 신화 아이템입니다
+  - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
   enchantments:
@@ -45,6 +77,7 @@ special_items__mythic_netherite_chestplate:
   display name: <red>[Mythic] 보호 6 네더라이트 흉갑
   lore:
   - 신화 아이템입니다
+  - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
   enchantments:
@@ -57,10 +90,12 @@ special_items__mythic_netherite_leggings:
   display name: <red>[Mythic] 보호 6 네더라이트 레깅스
   lore:
   - 신화 아이템입니다
+  - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
   enchantments:
   - protection:6
+  - swift_sneak:3
   allow in material recipes: false
 
 special_items__mythic_netherite_boots:
@@ -69,6 +104,7 @@ special_items__mythic_netherite_boots:
   display name: <red>[Mythic] 보호 6 네더라이트 부츠
   lore:
   - 신화 아이템입니다
+  - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
   enchantments:
@@ -241,3 +277,43 @@ special_items__mythic_silk_touch_command:
     - stop
   - inventory adjust slot:hand enchantments:silk_touch=1
   - narrate "<&[warning]>섬세한 손길이 <blue>켜졌습니다"
+
+special_items__mythic_armor_trim_command:
+  type: command
+  debug: false
+  name: mythic_armor_trim
+  description: apply armor trim to mythic netherite armor
+  usage: /mythic_armor_trim <&lt>pattern<&gt> <&lt>material<&gt>
+  aliases:
+  - mat
+  permission: chadol.special_items.command
+  tab completions:
+    1: <script[special_items__mythic_trim_data].data_key[allowed_patterns].separated_by[|]>
+    2: <script[special_items__mythic_trim_data].data_key[allowed_materials].separated_by[|]>
+  script:
+  - define usage "<&[error]>Usage: /mythic_armor_trim <&lt>pattern<&gt> <&lt>material<&gt>"
+  - define allowed_patterns <script[special_items__mythic_trim_data].data_key[allowed_patterns]>
+  - define allowed_materials <script[special_items__mythic_trim_data].data_key[allowed_materials]>
+  - define patterns_text <[allowed_patterns].separated_by[<gray>, <white>]>
+  - define materials_text <[allowed_materials].separated_by[<gray>, <white>]>
+  - if <context.server>:
+    - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
+    - stop
+  - define held_item <player.item_in_hand>
+  - if <[held_item]> !matches special_items__mythic_netherite_helmet && <[held_item]> !matches special_items__mythic_netherite_chestplate && <[held_item]> !matches special_items__mythic_netherite_leggings && <[held_item]> !matches special_items__mythic_netherite_boots:
+    - narrate "<&[error]>손에 Mythic 네더라이트 갑옷(투구, 흉갑, 레깅스, 부츠)을 들고 있어야 합니다"
+    - stop
+  - if <context.args.size> < 2:
+    - narrate <[usage]>
+    - narrate "<white>Pattern: <[patterns_text]>"
+    - narrate "<white>Material: <[materials_text]>"
+    - stop
+  - define trim_pattern <context.args.get[1].to_lowercase>
+  - define trim_material <context.args.get[2].to_lowercase>
+  - if !<[allowed_patterns].contains[<[trim_pattern]>]> || !<[allowed_materials].contains[<[trim_material]>]>:
+    - narrate <[usage]>
+    - narrate "<white>Pattern: <[patterns_text]>"
+    - narrate "<white>Material: <[materials_text]>"
+    - stop
+  - inventory adjust slot:hand trim:[material=<[trim_material]>;pattern=<[trim_pattern]>]
+  - narrate "<&[emphasis]>장식을 적용했습니다: <white><[trim_pattern]> <gray>/ <white><[trim_material]>"
