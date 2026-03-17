@@ -206,52 +206,52 @@ special_items__mythic_station_lock_event:
     - narrate "<&[error]>Mythic 아이템은 숫돌에서 사용할 수 없습니다"
     - determine cancelled
 
-special_items__mythic_command:
-  type: command
-  debug: false
-  name: special_items__mythic_all
-  description: give all mythic items for debug
-  usage: /special_items__mythic_all
-  aliases:
-  - sima
-  permission: chadol.special_items.command
-  script:
-  - if <context.server>:
-    - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
-    - stop
-  - define mythic_scripts <list[]>
-  - foreach <util.scripts> as:loaded_script:
-    - if <[loaded_script].container_type> != item:
-      - foreach next
-    - if !<[loaded_script].name.starts_with[special_items__mythic_]>:
-      - foreach next
-    - define mythic_scripts:->:<[loaded_script].name>
-  - if <[mythic_scripts].is_empty>:
-    - narrate "<&[error]>지급할 mythic 아이템 스크립트가 없습니다"
-    - stop
-  - foreach <[mythic_scripts]> as:mythic_script:
-    - give <item[<[mythic_script]>]>
-  - narrate "<&[emphasis]>Mythic 아이템 <[mythic_scripts].size>개를 지급했습니다"
+# special_items__mythic_command:
+#   type: command
+#   debug: false
+#   name: special_items__mythic_all
+#   description: give all mythic items for debug
+#   usage: /special_items__mythic_all
+#   aliases:
+#   - sima
+#   permission: chadol.special_items.command
+#   script:
+#   - if <context.server>:
+#     - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
+#     - stop
+#   - define mythic_scripts <list[]>
+#   - foreach <util.scripts> as:loaded_script:
+#     - if <[loaded_script].container_type> != item:
+#       - foreach next
+#     - if !<[loaded_script].name.starts_with[special_items__mythic_]>:
+#       - foreach next
+#     - define mythic_scripts:->:<[loaded_script].name>
+#   - if <[mythic_scripts].is_empty>:
+#     - narrate "<&[error]>지급할 mythic 아이템 스크립트가 없습니다"
+#     - stop
+#   - foreach <[mythic_scripts]> as:mythic_script:
+#     - give <item[<[mythic_script]>]>
+#   - narrate "<&[emphasis]>Mythic 아이템 <[mythic_scripts].size>개를 지급했습니다"
 
-special_items__mythic_clear_command:
-  type: command
-  debug: false
-  name: special_items__mythic_clear
-  description: remove all mythic items from inventory for debug
-  usage: /special_items__mythic_clear
-  aliases:
-  - simc
-  permission: chadol.special_items.command
-  script:
-  - if <context.server>:
-    - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
-    - stop
-  - define removed_count 0
-  - foreach <player.inventory.map_slots> key:slot as:slot_item:
-    - if <[slot_item]> matches special_items__mythic_*:
-      - take slot:<[slot]> quantity:999 from:<player.inventory>
-      - define removed_count:+:1
-  - narrate "<&[emphasis]>Mythic 아이템 <[removed_count]>개를 인벤토리에서 제거했습니다"
+# special_items__mythic_clear_command:
+#   type: command
+#   debug: false
+#   name: special_items__mythic_clear
+#   description: remove all mythic items from inventory for debug
+#   usage: /special_items__mythic_clear
+#   aliases:
+#   - simc
+#   permission: chadol.special_items.command
+#   script:
+#   - if <context.server>:
+#     - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
+#     - stop
+#   - define removed_count 0
+#   - foreach <player.inventory.map_slots> key:slot as:slot_item:
+#     - if <[slot_item]> matches special_items__mythic_*:
+#       - take slot:<[slot]> quantity:999 from:<player.inventory>
+#       - define removed_count:+:1
+#   - narrate "<&[emphasis]>Mythic 아이템 <[removed_count]>개를 인벤토리에서 제거했습니다"
 
 special_items__mythic_silk_touch_command:
   type: command

@@ -245,26 +245,26 @@ fishing__command:
     - stop
   - narrate "<&[error]>Usage: /fishing_multiplier reroll|show"
 
-fishing__legendary_all_command:
-  type: command
-  debug: false
-  name: fishing_legendary_all
-  description: give all fishing legendary items for debug
-  usage: /fishing_legendary_all
-  aliases:
-  - fla
-  permission: chadol.fishing.command
-  script:
-  - if <context.server>:
-    - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
-    - stop
-  - define legendary_items <script[fishing__data].data_key[legendary_items]>
-  - if <[legendary_items].is_empty>:
-    - narrate "<&[error]>지급할 legendary 아이템이 없습니다"
-    - stop
-  - foreach <[legendary_items]> as:reward_key:
-    - give <item[<[reward_key]>]>
-  - narrate "<&[emphasis]>Legendary 아이템 <[legendary_items].size>개를 지급했습니다"
+# fishing__legendary_all_command:
+#   type: command
+#   debug: false
+#   name: fishing_legendary_all
+#   description: give all fishing legendary items for debug
+#   usage: /fishing_legendary_all
+#   aliases:
+#   - fla
+#   permission: chadol.fishing.command
+#   script:
+#   - if <context.server>:
+#     - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
+#     - stop
+#   - define legendary_items <script[fishing__data].data_key[legendary_items]>
+#   - if <[legendary_items].is_empty>:
+#     - narrate "<&[error]>지급할 legendary 아이템이 없습니다"
+#     - stop
+#   - foreach <[legendary_items]> as:reward_key:
+#     - give <item[<[reward_key]>]>
+#   - narrate "<&[emphasis]>Legendary 아이템 <[legendary_items].size>개를 지급했습니다"
 
 fishing__potion_confirm_command:
   type: command
