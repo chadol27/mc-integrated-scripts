@@ -1,9 +1,11 @@
 special_items__mythic_trim_data:
   type: data
   allowed_patterns:
+  - bolt
   - coast
   - dune
   - eye
+  - flow
   - host
   - raiser
   - rib
@@ -28,6 +30,7 @@ special_items__mythic_trim_data:
   - netherite
   - quartz
   - redstone
+  - resin
 
 special_items__mythic_netherite_pickaxe:
   type: item
@@ -62,6 +65,7 @@ special_items__mythic_netherite_helmet:
   display name: <red>[Mythic] 보호 6 네더라이트 투구
   lore:
   - 신화 아이템입니다
+  - <gray>/mtt로 가시 토글 가능
   - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
@@ -77,6 +81,7 @@ special_items__mythic_netherite_chestplate:
   display name: <red>[Mythic] 보호 6 네더라이트 흉갑
   lore:
   - 신화 아이템입니다
+  - <gray>/mtt로 가시 토글 가능
   - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
@@ -90,6 +95,7 @@ special_items__mythic_netherite_leggings:
   display name: <red>[Mythic] 보호 6 네더라이트 레깅스
   lore:
   - 신화 아이템입니다
+  - <gray>/mtt로 가시 토글 가능
   - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
@@ -104,6 +110,7 @@ special_items__mythic_netherite_boots:
   display name: <red>[Mythic] 보호 6 네더라이트 부츠
   lore:
   - 신화 아이템입니다
+  - <gray>/mtt로 가시 토글 가능
   - <gray>/mat <&lt>pattern<&gt> <&lt>material<&gt>로 장식 변경 가능
   mechanisms:
     unbreakable: true
@@ -278,6 +285,30 @@ special_items__mythic_silk_touch_command:
   - inventory adjust slot:hand enchantments:silk_touch=1
   - narrate "<&[warning]>섬세한 손길이 <blue>켜졌습니다"
 
+special_items__mythic_thorns_toggle_command:
+  type: command
+  debug: false
+  name: mythic_thorns_toggle
+  description: toggle thorns enchant on mythic netherite armor
+  usage: /mythic_thorns_toggle
+  aliases:
+  - mtt
+  script:
+  - if <context.server>:
+    - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
+    - stop
+  - define held_item <player.item_in_hand>
+  - if <[held_item]> !matches special_items__mythic_netherite_helmet && <[held_item]> !matches special_items__mythic_netherite_chestplate && <[held_item]> !matches special_items__mythic_netherite_leggings && <[held_item]> !matches special_items__mythic_netherite_boots:
+    - narrate "<&[error]>손에 Mythic 네더라이트 갑옷(투구, 흉갑, 레깅스, 부츠)을 들고 있어야 합니다"
+    - stop
+  - define thorns_level <[held_item].enchantment_map.get[thorns].if_null[0]>
+  - if <[thorns_level]> >= 1:
+    - inventory adjust slot:hand remove_enchantments:<list[thorns]>
+    - narrate "<&[warning]>가시가 <red>꺼졌습니다"
+    - stop
+  - inventory adjust slot:hand enchantments:thorns=3
+  - narrate "<&[warning]>가시가 <blue>켜졌습니다"
+
 special_items__mythic_armor_trim_command:
   type: command
   debug: false
@@ -286,7 +317,6 @@ special_items__mythic_armor_trim_command:
   usage: /mythic_armor_trim <&lt>pattern<&gt> <&lt>material<&gt>
   aliases:
   - mat
-  permission: chadol.special_items.command
   tab completions:
     1: <script[special_items__mythic_trim_data].data_key[allowed_patterns].separated_by[|]>
     2: <script[special_items__mythic_trim_data].data_key[allowed_materials].separated_by[|]>

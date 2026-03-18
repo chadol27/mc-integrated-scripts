@@ -222,7 +222,7 @@ menu_gui__name_change_event:
   events:
     after player changes sign flagged:name_change:
     - define old_name <player.item_in_hand.material.name>
-    - define new_name <context.new.first>
+    - define new_name <context.new.separated_by[]>
     - inventory adjust slot:hand display:<[new_name]>
     - flag <player> name_change:!
     - narrate "<[old_name]>의 이름을 <&[emphasis]>'<[new_name]>'<reset>(으)로 변경했습니다"
@@ -336,7 +336,7 @@ menu_gui__pos_share_item:
 menu_gui__name_change_item:
   type: item
   material: name_tag
-  display name: <white>현재 들고 있는 아이템 이름 변경 (표지판 첫 줄에 입력)
+  display name: <white>현재 들고 있는 아이템 이름 변경 (표지판 에 나눠서 입력)
 
 menu_gui__item_flex_item:
   type: item
