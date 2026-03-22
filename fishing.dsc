@@ -76,7 +76,7 @@ fishing__double_chance_potion:
   material: potion
   display name: <&a>확률 2배 포션
   lore:
-  - <gray>20분 동안 낚시 확률이 2배가 됩니다
+  - <gray>60분 동안 낚시 확률이 2배가 됩니다
   mechanisms:
     color: lime
     potion_effects: <list[[base_type=water]]>
@@ -186,8 +186,8 @@ fishing__event:
       - narrate "<&[error]>이미 확률 2배 포션 효과가 적용 중입니다."
       - run util_sound_no
       - determine cancelled
-    - flag <player> fishing_double_chance_active expire:20m
-    - narrate "<&[emphasis]>확률 2배 포션 효과가 시작되었습니다. <white>20분 동안 낚시 확률이 2배가 됩니다."
+    - flag <player> fishing_double_chance_active expire:60m
+    - narrate "<&[emphasis]>확률 2배 포션 효과가 시작되었습니다. <white>60분 동안 낚시 확률이 2배가 됩니다."
     - run util_sound_yes
     on system time secondly:
     - if <server.online_players.is_empty>:
