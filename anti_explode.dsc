@@ -2,6 +2,8 @@ anti_explode__event:
   type: world
   debug: false
   events:
+    on enderman changes block:
+    - determine cancelled
     on creeper explodes priority:-1:
     - determine <list[]>
     on entity explodes in:anti_explode_cuboid:
