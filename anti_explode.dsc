@@ -7,6 +7,8 @@ anti_explode__event:
     on creeper explodes priority:-1:
     - determine <list[]>
     on entity explodes in:anti_explode_cuboid:
+    - if <server.has_flag[anti_explode_disabled]>:
+      - stop
     - if <context.entity> matches wind_charge|breeze_wind_charge|wither_skull:
       - determine <list[]>
     - define message "<&[error]>폭발 방지 구역에서 엔티티 폭발이 발생해 취소되었습니다<n><reset>- <context.entity.type>, <proc[util_location_format].context[<context.location>]>"
@@ -14,15 +16,21 @@ anti_explode__event:
     - announce to_console <[message]>
     - determine cancelled
     on block explodes in:anti_explode_cuboid:
+    - if <server.has_flag[anti_explode_disabled]>:
+      - stop
     - define message "<&[error]>폭발 방지 구역에서 블록 폭발이 발생해 취소되었습니다<n><reset>- <proc[util_location_format].context[<context.block>]>"
     - narrate <[message]> targets:<context.block.find_players_within[50]>
     - announce to_console <[message]>
     - determine <list[]>
     on entity damaged by BLOCK_EXPLOSION in:anti_explode_cuboid:
+    - if <server.has_flag[anti_explode_disabled]>:
+      - stop
     - if <context.entity.is_player>:
       - stop
     - determine cancelled
     on entity damaged by ENTITY_EXPLOSION in:anti_explode_cuboid:
+    - if <server.has_flag[anti_explode_disabled]>:
+      - stop
     - if <context.entity.is_player>:
       - stop
     - determine cancelled
@@ -32,15 +40,25 @@ anti_explode__command:
   debug: false
   name: anti_explode
   description: anti_explode
-  usage: /anti_explode loc1|loc2|add|remove|list|test|show|showall|clear
+  usage: /anti_explode on|off|loc1|loc2|add|remove|list|test|show|showall|clear
   aliases:
   - ae
   permission: chadol.anti_explode.command
   tab completions:
-    1: loc1|loc2|add|remove|list|test|show|clear|showall
+    1: on|off|loc1|loc2|add|remove|list|test|show|clear|showall
   script:
+  # on
+  - if <context.args.first> == on:
+    - flag server anti_explode_disabled:!
+    - narrate "<&[base]>폭발 방지가 켜졌습니다."
+    - announce to_console "Anti Explode Enabled"
+  # off
+  - else if <context.args.first> == off:
+    - flag server anti_explode_disabled
+    - narrate "<&[base]>폭발 방지가 꺼졌습니다."
+    - announce to_console "Anti Explode Disabled"
   # loc1
-  - if <context.args.first> == loc1:
+  - else if <context.args.first> == loc1:
     - flag <player> anti_explode_loc1:<player.location.with_y[-60]>
     - narrate "Location 1: <player.flag[anti_explode_loc1]>"
   # loc2
@@ -65,15 +83,19 @@ anti_explode__command:
     - if !<[members].exists> || <[members].size> == 0:
       - narrate "<&[error]>No cuboids. /anti_explode add"
       - stop
+    - if <context.args.size> < 2:
+      - narrate "<&[error]>Usage: /anti_explode remove <&lt>number<&gt>"
+      - stop
     - if !<context.args.get[2].is_integer>:
       - narrate "<&[error]>Usage: /anti_explode remove <&lt>number<&gt>"
       - stop
-    - if <context.args.get[2]> < 1 || <context.args.get[2]> > <[members].size>:
+    - define index <context.args.get[2]>
+    - if <[index]> < 1 || <[index]> > <[members].size>:
       - narrate "<&[error]>Out of range. 1-<[members].size>"
       - stop
-    - adjust <cuboid[anti_explode_cuboid]> remove_member:<context.args.get[2]>
-    - narrate "Cuboid removed: <context.args.get[2]>"
-    - announce to_console "Anti Explode Cuboid Removed: <context.args.get[2]>"
+    - adjust <cuboid[anti_explode_cuboid]> remove_member:<[index]>
+    - narrate "Cuboid removed: <[index]>"
+    - announce to_console "Anti Explode Cuboid Removed: <[index]>"
   # list
   - else if <context.args.first> == list:
     - narrate "Cuboid List: "
@@ -88,15 +110,19 @@ anti_explode__command:
     - if !<[members].exists> || <[members].size> == 0:
       - narrate "<&[error]>No cuboids. /anti_explode add"
       - stop
+    - if <context.args.size> < 2:
+      - narrate "<&[error]>Usage: /anti_explode show <&lt>number<&gt>"
+      - stop
     - if !<context.args.get[2].is_integer>:
       - narrate "<&[error]>Usage: /anti_explode show <&lt>number<&gt>"
       - stop
-    - if <context.args.get[2]> < 1 || <context.args.get[2]> > <[members].size>:
+    - define index <context.args.get[2]>
+    - if <[index]> < 1 || <[index]> > <[members].size>:
       - narrate "<&[error]>Out of range. 1-<[members].size>"
       - stop
-    - define cuboid <[members].get[<context.args.get[2]>]>
+    - define cuboid <[members].get[<[index]>]>
     - showfake red_concrete <[cuboid].outline_2d[<player.location.y>]>
-    - narrate "Showed: <context.args.get[2]>/<[members].size>"
+    - narrate "Showed: <[index]>/<[members].size>"
   # showall
   - else if <context.args.first> == showall:
     - showfake red_concrete <cuboid[anti_explode_cuboid].outline_2d[<player.location.y>]>
