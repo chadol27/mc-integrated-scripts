@@ -27,7 +27,7 @@ fishing__data:
   mythic_percent_luck_0: 0.0
   mythic_percent_luck_1: 0.0
   mythic_percent_luck_2: 0.0
-  mythic_percent_luck_3: 0.05
+  mythic_percent_luck_3: 0.1
   rare_items:
   - redstone_block[quantity=5]
   - gold_block[quantity=5]
