@@ -3,7 +3,6 @@ util_location_format:
   debug: false
   definitions: location
   script:
-  # - determine "[<[location].world.name>] <[location].x.round>, <[location].y.round>, <[location].z.round>"
   - determine <[location].round_down.format[[world] bx, by, bz]>
 
 util_location_facing:
