@@ -8,31 +8,32 @@ missile__launch:
     - flag server missile_in_progress:!
     - narrate "<&[error]>미사일을 발사할 수 없습니다. 발사자 또는 타겟의 위치를 확인할 수 없습니다." targets:<[shooter]>
     - stop
-  - define missile_location <[shooter].location.add[0,1.2,0]>
-  - define missile_speed 0.25
+  - define shooter_launch_location <[shooter].location>
+  - define missile_location <[shooter_launch_location].add[0,1.2,0]>
+  - define missile_speed 0.1
   - define missile_velocity <location[0,1,0].mul[<[missile_speed]>]>
-  - repeat 240 as:tick:
-    - if !<[shooter].is_online> || !<[target].is_online>:
+  - repeat 600 as:tick:
+    - if !<[target].is_online>:
       - flag server missile_in_progress:!
-      - narrate "<&[error]>미사일 추적이 중단되었습니다. 발사자 또는 타겟이 오프라인 상태입니다." targets:<[shooter]>
+      - narrate "<&[error]>미사일 추적이 중단되었습니다. 타겟이 오프라인 상태입니다." targets:<[shooter]>
       - repeat stop
-    - if !<[shooter].location.exists> || !<[target].location.exists>:
+    - if !<[target].location.exists>:
       - flag server missile_in_progress:!
-      - narrate "<&[error]>미사일 추적이 중단되었습니다. 발사자 또는 타겟의 위치를 확인할 수 없습니다." targets:<[shooter]>
+      - narrate "<&[error]>미사일 추적이 중단되었습니다. 타겟의 위치를 확인할 수 없습니다." targets:<[shooter]>
       - repeat stop
-    - if <[shooter].location.world.name> != <[target].location.world.name>:
+    - if <[shooter_launch_location].world.name> != <[target].location.world.name>:
       - flag server missile_in_progress:!
       - narrate "<&[error]>미사일 추적이 중단되었습니다. 타겟이 다른 월드로 이동했습니다." targets:<[shooter]>
       - repeat stop
     - define target_location <[target].location>
-    - define missile_speed <[missile_speed].add[0.05].min[1.4]>
+    - define missile_speed <[missile_speed].add[0.02]>
     - define target_distance <[missile_location].distance[<[target_location]>]>
     - if <[tick]> > 8:
       - define to_target <[target_location].sub[<[missile_location]>]>
       - define desired_direction <[to_target].normalize>
       - if <[target_distance]> <= 12:
-        - define missile_current_weight 0.65
-        - define missile_target_weight 0.35
+        - define missile_current_weight 0.5
+        - define missile_target_weight 0.5
       - else if <[target_distance]> <= 25:
         - define missile_current_weight 0.8
         - define missile_target_weight 0.2
@@ -46,8 +47,8 @@ missile__launch:
     - else:
       - define missile_velocity <[missile_velocity].normalize.mul[<[missile_speed]>]>
     - define missile_location <[missile_location].add[<[missile_velocity]>]>
-    - fakespawn primed_tnt <[missile_location]> players:<[missile_location].find_players_within[64]> duration:2t
-    - if <[tick].mod[4]> == 0:
+    - fakespawn primed_tnt <[missile_location]> players:<[missile_location].find_players_within[64]> duration:5t
+    - if <[tick].mod[2]> == 0:
       - playsound <[missile_location]> sound:BLOCK_NOTE_BLOCK_PLING sound_category:MASTER volume:3.2 pitch:1.4
 
     - if <[missile_location].distance[<[target_location]>]> <= 4:
@@ -55,12 +56,12 @@ missile__launch:
       - playsound <[missile_location]> sound:ENTITY_GENERIC_EXPLODE sound_category:MASTER volume:1.5 pitch:0.9
       - playeffect effect:EXPLOSION_LARGE at:<[missile_location]> quantity:1 offset:0
       - playeffect effect:SMOKE_LARGE at:<[missile_location]> quantity:3 offset:0.5
-      # - hurt 100 <[target]> cause:entityexplosion source:<[shooter]>
-      - execute as_server "damage <[target].name> 100 minecraft:player_explosion by <[shooter].name>" silent
+      - execute as_server "damage <[target].name> 50 minecraft:player_explosion by <[shooter].name>" silent
       - repeat stop
 
-    - if <[tick]> == 240:
+    - if <[tick]> == 600:
       - flag server missile_in_progress:!
+      - narrate "<&[warning]>미사일 추적 시간이 만료되었습니다." targets:<[shooter]>
     - wait 1t
 
 missile__event:
