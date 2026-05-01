@@ -56,7 +56,7 @@ missile__launch:
       - playsound <[missile_location]> sound:ENTITY_GENERIC_EXPLODE sound_category:MASTER volume:1.5 pitch:0.9
       - playeffect effect:EXPLOSION_LARGE at:<[missile_location]> quantity:1 offset:0
       - playeffect effect:SMOKE_LARGE at:<[missile_location]> quantity:3 offset:0.5
-      - execute as_server "damage <[target].name> 50 minecraft:player_explosion by <[shooter].name>" silent
+      - hurt 200 <[target]> cause:ENTITY_EXPLOSION
       - repeat stop
 
     - if <[tick]> == 600:
