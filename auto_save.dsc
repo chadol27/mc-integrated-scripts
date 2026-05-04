@@ -1,4 +1,4 @@
-autosave__event:
+auto_save__event:
   type: world
   debug: false
   events:
