@@ -59,6 +59,11 @@ menu_gui__click_event:
         - wait 5t
       - inventory open destination:<player.enderchest>
       - run util_sound_default
+    # 확장 엔더 상자
+    - if <context.item> matches menu_gui__ender_chest_extended_item:
+      - if <player.name.starts_with[.]>:
+        - wait 5t
+      - run ender_chest_extended__open
     # 야간 투시
     - if <context.item> matches menu_gui__night_vision_item:
       - if <player.has_flag[night_vision]>:
@@ -297,11 +302,9 @@ menu_gui__inventory:
   size: 27
   title: MENU
   slots:
-  - [menu_gui__rule_item] [menu_gui__suicide_item] [menu_gui__ender_chest_item]
-    [menu_gui__night_vision_item] [menu_gui__pos_share_item] [menu_gui__name_change_item]
-    [menu_gui__item_flex_item] [menu_gui__difficulty_item] [menu_gui__ranking_item]
-  - [menu_gui__sidebar_item] [menu_gui__fishing_loot_item] [menu_gui__fishing_ranking_item] [menu_gui__fishing_double_potion_item] [] [] [] [] []
-  - [] [] [] [] [] [] [] [] []
+  - [menu_gui__suicide_item] [menu_gui__ender_chest_item] [menu_gui__ender_chest_extended_item] [menu_gui__night_vision_item] [menu_gui__sidebar_item] [] [] [] []
+  - [menu_gui__pos_share_item] [menu_gui__name_change_item] [menu_gui__item_flex_item] [menu_gui__difficulty_item] [] [] [] [] []
+  - [menu_gui__rule_item] [menu_gui__ranking_item] [menu_gui__fishing_loot_item] [menu_gui__fishing_ranking_item] [menu_gui__fishing_double_potion_item] [] [] [] []
 
 menu_gui__rule_item:
   type: item
@@ -317,6 +320,11 @@ menu_gui__ender_chest_item:
   type: item
   material: ender_chest
   display name: <white>엔더 상자 열기
+
+menu_gui__ender_chest_extended_item:
+  type: item
+  material: shulker_box
+  display name: <white>확장 엔더 상자 열기
 
 menu_gui__night_vision_item:
   type: item
