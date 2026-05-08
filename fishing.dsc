@@ -88,15 +88,18 @@ fishing__event:
     # fish_caught 통계 증가값을 즉시 플래그에 캐시
     on player statistic fish_caught increments:
     - flag <player> fishing_count:<context.new_value>
+
     on player fishes while CAUGHT_FISH:
-    # 열린 수역이 아니면 특수 아이템 판정을 하지 않음
+    # 열린 수역이 아니면 특수 어획물 판정을 하지 않음
     - if !<context.hook.fish_hook_in_open_water.if_null[false]>:
       - narrate "<&[error]>경고: 열린 수역이 아닙니다. <reset>자동 낚시 방지를 위해 보물(바닐라)과 특수 어획물(플러그인)이 나오지 않습니다. 5x5x2의 물 위 5x5x2만큼 공기여야 합니다."
       - run util_sound_no
       - stop
+
     # 행운 인챈트 레벨 정규화
     - define luck_level <player.item_in_hand.enchantment_map.get[luck_of_the_sea].if_null[0]>
     - define luck_level <[luck_level].max[0].min[3]>
+
     # 배율 적용된 퍼센트 확률 계산
     - define chance_multiplier <server.flag[fishing_chance_multiplier].if_null[1.0]>
     - define potion_multiplier <tern[<player.has_flag[fishing_double_chance_active]>].pass[2].fail[1]>
@@ -104,15 +107,20 @@ fishing__event:
     - define rare_percent <script[fishing__data].data_key[rare_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
     - define legendary_percent <script[fishing__data].data_key[legendary_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
     - define mythic_percent <script[fishing__data].data_key[mythic_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
+
     # Mythic 우선 판정
     - if <util.random_chance[<[mythic_percent]>]>:
       - define reward_key <script[fishing__data].data_key[mythic_items].random>
       - define reward <item[<[reward_key]>]>
+
+      # 표시 이름과 툴팁 구성
       - if <[reward].display.exists>:
         - define reward_name <[reward].display>
       - else:
         - define reward_name <[reward].material.translated_name>
       - define reward_name <&hover[<[reward]>].type[SHOW_ITEM]><[reward_name]><&end_hover>
+
+      # 수량/인챈트 표시용 텍스트 구성
       - define reward_qty_text <empty>
       - define reward_enchants <list[]>
       - foreach <[reward].enchantment_map> key:key as:val:
@@ -123,6 +131,8 @@ fishing__event:
         - define enchant_text " <gray>(<[reward_enchants].separated_by[<gray>, ]>)"
       - if <[reward].quantity> > 1:
         - define reward_qty_text " <gray>x<[reward].quantity>"
+
+      # 통계 기록 후 전체 알림
       - flag <player> fishing_mythic_count:+:1
       - define fish_count <player.statistic[fish_caught].if_null[0]>
       - define mythic_percent_display <[mythic_percent].mul[100].round.div[100]>
@@ -134,15 +144,20 @@ fishing__event:
         - playsound <[loop_player]> sound:minecraft:ui.toast.challenge_complete sound_category:MASTER volume:1 pitch:1
       - determine CAUGHT:<[reward]>
       - stop
+
     # 남은 구간에서 Legendary 판정
     - else if <util.random_chance[<[legendary_percent]>]>:
       - define reward_key <script[fishing__data].data_key[legendary_items].random>
       - define reward <item[<[reward_key]>]>
+
+      # 표시 이름과 툴팁 구성
       - if <[reward].display.exists>:
         - define reward_name <[reward].display>
       - else:
         - define reward_name <[reward].material.translated_name>
       - define reward_name <&hover[<[reward]>].type[SHOW_ITEM]><[reward_name]><&end_hover>
+
+      # 수량/인챈트 표시용 텍스트 구성
       - define reward_qty_text <empty>
       - define reward_enchants <list[]>
       - foreach <[reward].enchantment_map> key:key as:val:
@@ -153,6 +168,8 @@ fishing__event:
         - define enchant_text " <gray>(<[reward_enchants].separated_by[<gray>, ]>)"
       - if <[reward].quantity> > 1:
         - define reward_qty_text " <gray>x<[reward].quantity>"
+
+      # 통계 기록 후 전체 알림
       - flag <player> fishing_legendary_count:+:1
       - define fish_count <player.statistic[fish_caught].if_null[0]>
       - define legendary_percent_display <[legendary_percent].mul[100].round.div[100]>
@@ -164,10 +181,13 @@ fishing__event:
         - playsound <[loop_player]> sound:minecraft:ui.toast.challenge_complete sound_category:MASTER volume:1 pitch:1
       - determine CAUGHT:<[reward]>
       - stop
+
     # 남은 구간에서 Rare 판정
     - else if <util.random_chance[<[rare_percent]>]>:
       - define reward_key <script[fishing__data].data_key[rare_items].random>
       - define reward <item[<[reward_key]>]>
+
+      # Rare는 개인 메시지만 출력하고 바로 보상으로 결정
       - if <[reward].display.exists>:
         - define reward_name <[reward].display>
       - else:
@@ -181,36 +201,48 @@ fishing__event:
       - stop
     - else:
       - stop
+
     on player consumes fishing__double_chance_potion:
+    # 이미 활성화된 상태에서는 중복 사용 방지
     - if <player.has_flag[fishing_double_chance_active]>:
       - narrate "<&[error]>이미 확률 2배 포션 효과가 적용 중입니다."
       - run util_sound_no
       - determine cancelled
+
     - flag <player> fishing_double_chance_active expire:60m
     - narrate "<&[emphasis]>확률 2배 포션 효과가 시작되었습니다. <white>60분 동안 낚시 확률이 2배가 됩니다."
     - run util_sound_yes
+
     on system time secondly:
     - if <server.online_players.is_empty>:
       - stop
+
     # 낚싯대 들고 있을 때만 실시간 확률/통계 액션바 표시
     - foreach <server.online_players> as:p:
       - if <[p].item_in_hand.material.name> != fishing_rod:
         - foreach next
+
+      # 플레이어별 현재 확률 계산
       - define luck_level <[p].item_in_hand.enchantment_map.get[luck_of_the_sea].if_null[0]>
       - define luck_level <[luck_level].max[0].min[3]>
       - define fish_count <[p].flag[fishing_count].if_null[0]>
       - define chance_multiplier <server.flag[fishing_chance_multiplier].if_null[1.0]>
       - define potion_multiplier <tern[<[p].has_flag[fishing_double_chance_active]>].pass[2].fail[1]>
       - define effective_multiplier <[chance_multiplier].mul[<[potion_multiplier]>]>
+
       - define multiplier_text x<[chance_multiplier]>
       - if <[potion_multiplier]> == 2:
         - define multiplier_text "<[multiplier_text]> x2"
+
       - define rare_percent <script[fishing__data].data_key[rare_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
       - define legendary_percent <script[fishing__data].data_key[legendary_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
       - define mythic_percent <script[fishing__data].data_key[mythic_percent_luck_<[luck_level]>].mul[<[effective_multiplier]>]>
+
       - define rare_percent_display <[rare_percent].mul[100].round.div[100]>
       - define legendary_percent_display <[legendary_percent].mul[100].round.div[100]>
       - define mythic_percent_display <[mythic_percent].mul[100].round.div[100]>
+
+      # 누적 통계와 현재 확률을 액션바에 압축 표시
       - define rare_count <[p].flag[fishing_rare_count].if_null[0]>
       - define legendary_count <[p].flag[fishing_legendary_count].if_null[0]>
       - define mythic_count <[p].flag[fishing_mythic_count].if_null[0]>
@@ -244,27 +276,6 @@ fishing__command:
     - narrate "<&[emphasis]>현재 낚시 확률 배수: <white>x<server.flag[fishing_chance_multiplier].if_null[1.0]>"
     - stop
   - narrate "<&[error]>Usage: /fishing_multiplier reroll|show"
-
-# fishing__legendary_all_command:
-#   type: command
-#   debug: false
-#   name: fishing_legendary_all
-#   description: give all fishing legendary items for debug
-#   usage: /fishing_legendary_all
-#   aliases:
-#   - fla
-#   permission: chadol.fishing.command
-#   script:
-#   - if <context.server>:
-#     - announce to_console "<&[error]>이 명령어는 플레이어만 사용할 수 있습니다"
-#     - stop
-#   - define legendary_items <script[fishing__data].data_key[legendary_items]>
-#   - if <[legendary_items].is_empty>:
-#     - narrate "<&[error]>지급할 legendary 아이템이 없습니다"
-#     - stop
-#   - foreach <[legendary_items]> as:reward_key:
-#     - give <item[<[reward_key]>]>
-#   - narrate "<&[emphasis]>Legendary 아이템 <[legendary_items].size>개를 지급했습니다"
 
 fishing__potion_confirm_command:
   type: command
